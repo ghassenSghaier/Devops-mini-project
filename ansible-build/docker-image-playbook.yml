@@ -1,0 +1,49 @@
+---
+- name: Pull An Updated Centos7 Image
+  hosts: localhost
+  tasks:
+  - name: Pull Centos7 Image
+    docker_container:
+      name: "centos-ansible-base"
+      image: "centos7:latest"
+      state: started
+      command: tail -f /dev/null
+  - name: Add Nginx Image to Ansible Hosts
+    add_host:
+      name: "centos-ansible-base"
+      ansible_connection: docker
+      ansible_ssh_user: root
+- name: Configure Centos7 Image for Installing Nginx
+  hosts: "centos-ansible-base"
+  gather_facts: false
+  tasks:
+    - name: Install Python3
+      raw: yum update && yum upgrade -y && yum install python2 -y
+    - name: Install Rsync
+      apt:
+        name: rsync
+    - name: Install Nginx
+      raw:  yum install -y epel-release && yum install -y nginx && yum clean all	    
+    - name: copy local index.html to site directory
+      synchronize:
+        src: ./index.html/
+        dest: /usr/share/nginx/html/
+    - name: introduce creation timestamp
+      raw:  current_time=$(date "+%Y.%m.%d-%H.%M.%S") && echo "<html><body><h1>Hello FivePoints </h1><div>$current_time</div></body></html>" > /usr/share/nginx/html/index.html
+    - name: Ensure NGINX Is enabled
+      service:
+        name: nginx
+        enabled: yes
+- name: Snapshot base image to create newly configured Imafe
+  hosts: localhost
+  tasks:
+    - name: Commit Docker image
+      command: docker commit "centos-ansible-base" "nginx-ansible-build-demo"
+- name: Clean Up Docker Containers
+  hosts: localhost
+  tasks:
+    - name: Remove Running Base Image
+      docker_container:
+        name: nginx-ansible-base
+        state: absent
+        force_kill: yes

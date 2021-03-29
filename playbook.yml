@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Build Docker image from Dockerfile
+        docker_image:
+            name: web
+            path: docker
+            state: build
+    - name: Running the container                                                                                             
+        docker_container:                                                                                                               
+            name: fivepointsimage
+            image: web:latest
+            state: started                                                                                                          
+            expose: 80
+    - name: Check if container is running
+        shell: docker ps                                                                                        ~                                 

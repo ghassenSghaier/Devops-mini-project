@@ -1,0 +1,19 @@
+Task description
+----------------
+Write an ansible playbook, that performs the following tasks:
+
+- builds a new docker image using a Dockerfile you provide (please use this base image from hub.docker.com: centos:7)
+      - the new image should have:
+          - all recent system updates
+          - nginx installed and running
+          - nginx should serve at /index.html a simple html page only containing the timestamp of time when the file was created
+- starts the new image (port 80 should be reachable from the outside)
+
+The expectation is, that we can run the playbook and then easily can reach the html page inside the running container on port 80
+
+
+Technical requirements
+----------------------
+Please provide *one* zip file that contains the following:
+- playbook, dockerfile
+- documentation how to start the playbook and access the aforementioned html page
